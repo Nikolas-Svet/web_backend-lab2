@@ -3,6 +3,8 @@ const apiBaseUrl = '';
 let token = '';
 let userId = '';
 
+const API_PREFIX = '/api/lab2/'
+
 const registrationForm = document.querySelector('.registration-form');
 const loginForm = document.querySelector('.login-form');
 const getProfile = document.querySelector('.get-profile');
@@ -18,7 +20,7 @@ registrationForm.addEventListener('submit', async (e) => {
     const role = document.querySelector('.reg-role').value;
 
     try {
-        const response = await fetch(apiBaseUrl + '/api/auth/register', {
+        const response = await fetch(apiBaseUrl + `${API_PREFIX}auth/register`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({firstName, lastName, username, password, role})
@@ -46,7 +48,7 @@ loginForm.addEventListener('submit', async (e) => {
     const password = document.querySelector('.login-password').value;
 
     try {
-        const response = await fetch(apiBaseUrl + '/api/auth/login', {
+        const response = await fetch(apiBaseUrl + `${API_PREFIX}auth/login`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({username, password})
@@ -75,7 +77,7 @@ getProfile.addEventListener('click', async () => {
         return;
     }
     try {
-        const response = await fetch(apiBaseUrl + '/api/user/me', {
+        const response = await fetch(apiBaseUrl + `${API_PREFIX}user/me`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -110,7 +112,7 @@ deleteAccount.addEventListener('click', async () => {
     if (!confirm('Вы уверены, что хотите удалить свой аккаунт?')) return;
 
     try {
-        const response = await fetch(apiBaseUrl + '/api/user/' + userId, {
+        const response = await fetch(apiBaseUrl + `${API_PREFIX}user/` + userId, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
