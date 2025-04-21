@@ -6,7 +6,7 @@ import {ErrorMessages} from "../utils/consts";
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
-export const register = async (req: Request, res: Response): Promise<void> => {
+export const register = async (req: Request, res: Response) => {
   try {
     const { firstName, lastName, username, password, role } = req.body;
 
@@ -47,7 +47,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export const login = async (req: Request, res: Response): Promise<void> => {
+export const login = async (req: Request, res: Response) => {
   try {
     const { username, password } = req.body;
 
