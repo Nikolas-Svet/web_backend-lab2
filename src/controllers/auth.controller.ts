@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import User, { IUser } from '../models/user.model';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import {ErrorMessages} from "../utils/consts";
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
@@ -10,12 +11,12 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     const { firstName, lastName, username, password, role } = req.body;
 
     if (!firstName || !lastName || !username || !password || !role) {
-      res.status(400).json({ message: 'Все поля обязательны' });
+      res.status(400).json({ message: ErrorMessages.RegValidationAll });
       return;
     }
 
     if (!['student', 'teacher'].includes(role)) {
-      res.status(400).json({ message: 'Роль должна быть student или teacher' });
+      res.status(400).json({ message: ErrorMessages.RegValidationRole });
       return;
     }
 
@@ -23,7 +24,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     if (existingUser) {
       res
         .status(400)
-        .json({ message: 'Пользователь с таким логином уже существует' });
+        .json({ message: ErrorMessages.RegValidationNickname });
       return;
     }
 
@@ -39,10 +40,10 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     await user.save();
 
-    res.status(201).json({ message: 'Пользователь зарегистрирован' });
+    res.status(201).json({ message: ErrorMessages.RegSuccessful });
   } catch (error) {
     console.error('Ошибка регистрации:', error);
-    res.status(500).json({ message: 'Внутренняя ошибка сервера' });
+    res.status(500).json({ message: ErrorMessages.InternalServerError });
   }
 };
 
@@ -51,19 +52,19 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     const { username, password } = req.body;
 
     if (!username || !password) {
-      res.status(400).json({ message: 'Логин и пароль обязательны' });
+      res.status(400).json({ message: ErrorMessages.AuthValidation });
       return;
     }
 
     const user: IUser | null = await User.findOne({ username });
     if (!user) {
-      res.status(401).json({ message: 'Неверный логин или пароль' });
+      res.status(401).json({ message: ErrorMessages.Auth });
       return;
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      res.status(401).json({ message: 'Неверный логин или пароль' });
+      res.status(401).json({ message: ErrorMessages.Auth });
       return;
     }
 
@@ -76,6 +77,6 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     res.json({ token });
   } catch (error) {
     console.error('Ошибка логина:', error);
-    res.status(500).json({ message: 'Внутренняя ошибка сервера' });
+    res.status(500).json({ message: ErrorMessages.InternalServerError });
   }
 };
