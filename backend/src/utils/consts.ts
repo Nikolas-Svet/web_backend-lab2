@@ -19,6 +19,10 @@ export enum ErrorMessages {
     // Получение данных о пользователе
     GetInfoNotAuth = 'Пользователь не авторизован',
     // Общее для пользователя
-    NotFoundUser = 'Пользователь не найден'
+    NotFoundUser = 'Пользователь не найден',
+    // Курсы
+    NotFoundCourse = 'Курс не найден',
+    ValidationId = 'Некорректный ID курса',
+    CourseDelSuccessful = 'Курс успешно удалён'
 }
 

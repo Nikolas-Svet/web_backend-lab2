@@ -8,7 +8,7 @@ import {ErrorMessages} from "../utils/consts";
 export const getProfile = async (
   req: AuthRequest,
   res: Response,
-): Promise<void> => {
+) => {
   try {
     const userId = req.user?.userId;
     if (!userId) {
@@ -32,7 +32,7 @@ export const getProfile = async (
 export const deleteUser = async (
   req: Request<{ id: string }>,
   res: Response,
-): Promise<void> => {
+) => {
   try {
     const { id } = req.params;
     const user: IUser | null = await User.findByIdAndDelete(id);
