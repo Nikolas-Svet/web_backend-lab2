@@ -66,6 +66,58 @@
         <button class="delete-account">Удалить аккаунт</button>
         <div class="delete-message"></div>
     </section>
+
+    <!-- Раздел для тестирования Courses API -->
+    <section id="courses-section">
+        <h2>Courses API Test</h2>
+
+        <!-- Создание курса -->
+        <form id="create-course-form" enctype="multipart/form-data">
+            <h3>Create Course</h3>
+            <label>Title: <input type="text" id="course-title" required></label><br>
+            <label>Description: <input type="text" id="course-description"></label><br>
+            <label>Price: <input type="number" id="course-price" required></label><br>
+            <label>Category: <input type="text" id="course-category" required></label><br>
+            <label>Level:
+                <select id="course-level">
+                    <option value="beginner">beginner</option>
+                    <option value="intermediate">intermediate</option>
+                    <option value="advanced">advanced</option>
+                </select>
+            </label><br>
+            <label>Published: <input type="checkbox" id="course-published"></label><br>
+            <label>Tags (comma): <input type="text" id="course-tags"></label><br>
+            <label>Image: <input type="file" id="course-image" accept="image/*" required></label><br>
+            <button type="submit">Create</button>
+        </form>
+        <div id="create-course-message"></div>
+
+        <!-- Получить все курсы -->
+        <h3>Get All Courses</h3>
+        <button id="list-courses-btn">Get All</button>
+        <pre id="courses-list"></pre>
+
+        <!-- Получить курс по ID -->
+        <h3>Get Course by ID</h3>
+        <input type="text" id="get-course-id" placeholder="Course ID">
+        <button id="get-course-btn">Get</button>
+        <pre id="course-detail"></pre>
+
+        <!-- Обновить курс -->
+        <h3>Update Course</h3>
+        <form id="update-course-form">
+            <label>Course ID: <input type="text" id="update-course-id" required></label><br>
+            <label>New Title: <input type="text" id="update-course-title"></label><br>
+            <button type="submit">Update</button>
+        </form>
+        <div id="update-course-message"></div>
+
+        <!-- Удалить курс -->
+        <h3>Delete Course</h3>
+        <input type="text" id="delete-course-id" placeholder="Course ID">
+        <button id="delete-course-btn">Delete</button>
+        <div id="delete-course-message"></div>
+    </section>
 </main>
 </body>
 </html>

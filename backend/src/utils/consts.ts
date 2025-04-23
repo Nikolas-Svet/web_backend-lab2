@@ -23,6 +23,7 @@ export enum ErrorMessages {
     // Курсы
     NotFoundCourse = 'Курс не найден',
     ValidationId = 'Некорректный ID курса',
-    CourseDelSuccessful = 'Курс успешно удалён'
+    CourseDelSuccessful = 'Курс успешно удалён',
+    CourseNotFile = 'Требуется файл изображения',
 }
 
