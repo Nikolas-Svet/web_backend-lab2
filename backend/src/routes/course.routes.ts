@@ -2,13 +2,36 @@
 
 import {Router} from "express";
 import {authenticateJWT} from "../middleware/auth.middleware";
-import {deleteCourseById, getCourseById, getCourses, updateCourseById} from "../controllers/course.controller";
+import {
+    createCourse,
+    deleteCourseById,
+    getCourseById,
+    getCourses,
+    updateCourseById
+} from "../controllers/course.controller";
+import {upload} from "../middleware/upload.middleware";
 
 const router = Router();
 
-router.get('/', authenticateJWT, getCourses)
-router.get('/:id', authenticateJWT, getCourseById)
-router.delete('/:id', authenticateJWT, deleteCourseById)
-router.patch('/:id', authenticateJWT, updateCourseById)
+// CRUD для курсов
+router.post(
+    '/',
+    authenticateJWT,
+    upload.single('image'),
+    createCourse
+);
+router.get('/', getCourses);
+router.get('/:id', getCourseById);
+router.put(
+    '/:id',
+    authenticateJWT,
+    upload.single('image'),
+    updateCourseById
+);
+router.delete(
+    '/:id',
+    authenticateJWT,
+    deleteCourseById
+);
 
 export default router;

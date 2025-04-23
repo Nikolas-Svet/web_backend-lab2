@@ -2,8 +2,50 @@ import { Request, Response } from 'express';
 import { ErrorMessages } from '../utils/consts';
 import Course from '../models/course.model';
 import mongoose from "mongoose";
+import slugify from 'slugify';
+import {processImage} from "../utils/image.utils";
 
-export const getCourses = async (req: Request, res: Response) => {
+// Создание курса
+export const createCourse = async (req: Request & { file?: Express.Multer.File; user?: { userId: string } }, res: Response): Promise<void> => {
+    try {
+        const { title, description, price, category, level, published, tags } = req.body;
+        const author = req.user?.userId;
+        if (!author) {
+            res.status(401).json({ message: ErrorMessages.GetInfoNotAuth });
+            return;
+        }
+        if (!req.file) {
+            res.status(400).json({ message: ErrorMessages.CourseNotFile });
+            return;
+        }
+
+        // Сжатие
+        const processedImage = await processImage(req.file.path);
+
+        const course = new Course({
+            title,
+            slug: slugify(title, { lower: true, strict: true }),
+            description,
+            price,
+            image: processedImage,
+            category,
+            level,
+            published,
+            author,
+            tags: tags ? (Array.isArray(tags) ? tags : tags.split(',')) : [],
+            createdAt: new Date(),
+        });
+
+        await course.save();
+        res.status(201).json(course);
+    } catch (error) {
+        console.error('Ошибка создания курса:', error);
+        res.status(500).json({ message: ErrorMessages.InternalServerError });
+    }
+};
+
+// Получение всех курсов с фильтрацией, сортировкой, пагинацией
+export const getCourses = async (req: any, res: Response): Promise<void> => {
     try {
         const {
             title,
@@ -12,38 +54,31 @@ export const getCourses = async (req: Request, res: Response) => {
             published,
             priceMin,
             priceMax,
+            tags,
             sort = '-createdAt',
             page = '1',
             limit = '10',
         } = req.query;
 
-        // Фильтр по условиям
         const filter: any = {};
-
-        if (title) {
-            filter.title = { $regex: title, $options: 'i' };
-        }
-
+        if (title) filter.title = { $regex: title, $options: 'i' };
         if (category) filter.category = category;
         if (level) filter.level = level;
         if (published !== undefined) filter.published = published === 'true';
-
+        if (tags) filter.tags = { $in: Array.isArray(tags) ? tags : (tags as string).split(',') };
         if (priceMin || priceMax) {
             filter.price = {};
             if (priceMin) filter.price.$gte = Number(priceMin);
             if (priceMax) filter.price.$lte = Number(priceMax);
         }
 
-        // Сортировка
         const sortBy: any = {};
-        const sortFields = (sort as string).split(',');
-        sortFields.forEach((field) => {
-            const direction = field.startsWith('-') ? -1 : 1;
+        (sort as string).split(',').forEach(field => {
+            const dir = field.startsWith('-') ? -1 : 1;
             const key = field.replace(/^[-+]/, '');
-            sortBy[key] = direction;
+            sortBy[key] = dir;
         });
 
-        // Пагинация
         const currentPage = parseInt(page as string, 10);
         const perPage = parseInt(limit as string, 10);
         const skip = (currentPage - 1) * perPage;
@@ -65,22 +100,19 @@ export const getCourses = async (req: Request, res: Response) => {
     }
 };
 
-export const getCourseById = async (req: Request, res: Response): Promise<void> => {
+// Получение курса по ID
+export const getCourseById = async (req: any, res: Response): Promise<void> => {
     const { id } = req.params;
-
     try {
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            res.status(400).json({ message: ErrorMessages.ValidationId  });
+            res.status(400).json({ message: ErrorMessages.ValidationId });
             return;
         }
-
         const course = await Course.findById(id).select('-__v');
-
         if (!course) {
             res.status(404).json({ message: ErrorMessages.NotFoundCourse });
             return;
         }
-
         res.json(course);
     } catch (error) {
         console.error('Ошибка получения курса:', error);
@@ -88,52 +120,55 @@ export const getCourseById = async (req: Request, res: Response): Promise<void> 
     }
 };
 
-export const deleteCourseById = async (req: Request, res: Response): Promise<void> => {
+// Обновление курса по ID
+export const updateCourseById = async (req: any, res: Response): Promise<void> => {
     const { id } = req.params;
-
     try {
         if (!mongoose.Types.ObjectId.isValid(id)) {
             res.status(400).json({ message: ErrorMessages.ValidationId });
             return;
         }
 
-        const course = await Course.findByIdAndDelete(id);
+        const updates: any = { ...req.body };
+        if (updates.title) {
+            updates.slug = slugify(updates.title, { lower: true, strict: true });
+        }
+        if (req.file) {
+            updates.image = await processImage(req.file.path);
+        }
 
-        if (!course) {
+        const updated = await Course.findByIdAndUpdate(id, updates, {
+            new: true,
+            runValidators: true,
+        });
+        if (!updated) {
             res.status(404).json({ message: ErrorMessages.NotFoundCourse });
             return;
         }
-
-        res.status(200).json({ message: ErrorMessages.CourseDelSuccessful });
+        res.json(updated);
     } catch (error) {
-        console.error('Ошибка удаления курса:', error);
+        console.error('Ошибка обновления курса:', error);
         res.status(500).json({ message: ErrorMessages.InternalServerError });
     }
 };
 
-export const updateCourseById = async (req: Request, res: Response): Promise<void> => {
+// Удаление курса по ID
+export const deleteCourseById = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
-    const updates = req.body;
-
     try {
         if (!mongoose.Types.ObjectId.isValid(id)) {
             res.status(400).json({ message: ErrorMessages.ValidationId });
             return;
         }
 
-        const updatedCourse = await Course.findByIdAndUpdate(id, updates, {
-            new: true,
-            runValidators: true,
-        });
-
-        if (!updatedCourse) {
+        const deleted = await Course.findByIdAndDelete(id);
+        if (!deleted) {
             res.status(404).json({ message: ErrorMessages.NotFoundCourse });
             return;
         }
-
-        res.json(updatedCourse);
+        res.status(200).json({ message: ErrorMessages.CourseDelSuccessful });
     } catch (error) {
-        console.error('Ошибка обновления курса:', error);
+        console.error('Ошибка удаления курса:', error);
         res.status(500).json({ message: ErrorMessages.InternalServerError });
     }
 };
