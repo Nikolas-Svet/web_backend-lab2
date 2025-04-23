@@ -29,7 +29,6 @@ const CourseSchema: Schema = new Schema({
     createdAt: { type: Date, required: true },
 })
 
-// Генерация slug из title
 CourseSchema.pre<ICourse>('validate', function(next) {
     if (this.isModified('title') || !this.slug) {
         this.slug = slugify(this.title, { lower: true, strict: true });

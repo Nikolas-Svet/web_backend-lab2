@@ -2,3 +2,5 @@ dist
 node_modules
 ../.idea
 backend/.env
+backend/.DS_store
+.DS_store

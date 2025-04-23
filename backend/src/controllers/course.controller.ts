@@ -4,9 +4,9 @@ import Course from '../models/course.model';
 import mongoose from "mongoose";
 import slugify from 'slugify';
 import {processImage} from "../utils/image.utils";
+import {IRequestWithFile} from "../types/course.types";
 
-// Создание курса
-export const createCourse = async (req: Request & { file?: Express.Multer.File; user?: { userId: string } }, res: Response): Promise<void> => {
+export const createCourse = async (req: IRequestWithFile, res: Response) => {
     try {
         const { title, description, price, category, level, published, tags } = req.body;
         const author = req.user?.userId;
@@ -19,7 +19,6 @@ export const createCourse = async (req: Request & { file?: Express.Multer.File; 
             return;
         }
 
-        // Сжатие
         const processedImage = await processImage(req.file.path);
 
         const course = new Course({
@@ -44,8 +43,7 @@ export const createCourse = async (req: Request & { file?: Express.Multer.File; 
     }
 };
 
-// Получение всех курсов с фильтрацией, сортировкой, пагинацией
-export const getCourses = async (req: any, res: Response): Promise<void> => {
+export const getCourses = async (req: IRequestWithFile, res: Response) => {
     try {
         const {
             title,
@@ -100,8 +98,7 @@ export const getCourses = async (req: any, res: Response): Promise<void> => {
     }
 };
 
-// Получение курса по ID
-export const getCourseById = async (req: any, res: Response): Promise<void> => {
+export const getCourseById = async (req: IRequestWithFile, res: Response) => {
     const { id } = req.params;
     try {
         if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -120,8 +117,7 @@ export const getCourseById = async (req: any, res: Response): Promise<void> => {
     }
 };
 
-// Обновление курса по ID
-export const updateCourseById = async (req: any, res: Response): Promise<void> => {
+export const updateCourseById = async (req: IRequestWithFile, res: Response) => {
     const { id } = req.params;
     try {
         if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -152,8 +148,7 @@ export const updateCourseById = async (req: any, res: Response): Promise<void> =
     }
 };
 
-// Удаление курса по ID
-export const deleteCourseById = async (req: Request, res: Response): Promise<void> => {
+export const deleteCourseById = async (req: IRequestWithFile, res: Response) => {
     const { id } = req.params;
     try {
         if (!mongoose.Types.ObjectId.isValid(id)) {

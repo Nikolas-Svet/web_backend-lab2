@@ -1,6 +1,6 @@
 // src/routes/course.routes.ts
 
-import {Router} from "express";
+import {Request, Router} from "express";
 import {authenticateJWT} from "../middleware/auth.middleware";
 import {
     createCourse,
@@ -13,7 +13,6 @@ import {upload} from "../middleware/upload.middleware";
 
 const router = Router();
 
-// CRUD для курсов
 router.post(
     '/',
     authenticateJWT,
